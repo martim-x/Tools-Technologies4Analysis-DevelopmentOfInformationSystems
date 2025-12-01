@@ -1,0 +1,88 @@
+@startuml Sequence Diagram
+
+' Настройки
+skinparam actorStyle awesome
+
+skinparam sequence {
+    ArrowColor #465768
+    LifeLineBorderColor #0b2036
+    LifeLineBackgroundColor #FFFFFF
+    ParticipantBorderColor #587A9C
+    ParticipantBackgroundColor #587A9C
+    ParticipantFontColor #FFFFFF
+    ActorBackgroundColor #587A9C
+    ActorBorderColor #587A9C
+    ActorFontColor #FFFFFF
+}
+
+' Участники
+actor "Пользователь" as User
+participant "Frontend" as Frontend
+participant "Nginx" as Nginx
+participant "Daphne" as Daphne
+participant "Django" as Django
+participant "Auth Service" as Auth
+participant "Elasticsearch" as Elastic
+participant "Leasing Service" as Leasing
+database "PostgreSQL" as DB
+participant "OAuth2 Providers" as OAuth
+participant "Logstash" as Logstash
+participant "Kibana" as Kibana
+
+' Процесс аутентификации
+User -> Frontend: Запрос на вход
+Frontend -> Nginx: HTTPS запрос
+Nginx -> Daphne: WebSocket/HTTP
+Daphne -> Django: ASGI запрос
+Django -> Auth: Проверка учетных данных
+Auth -> OAuth: Проверка OAuth токена
+OAuth --> Auth: Результат проверки
+Auth --> Django: Результат аутентификации
+Django --> Daphne: Ответ
+Daphne --> Nginx: Ответ
+Nginx --> Frontend: Ответ
+Frontend --> User: Результат входа
+
+' Процесс поиска автомобилей
+User -> Frontend: Поиск автомобилей
+Frontend -> Nginx: HTTPS запрос
+Nginx -> Daphne: WebSocket/HTTP
+Daphne -> Django: ASGI запрос
+Django -> Elastic: Поисковый запрос
+Elastic -> DB: Получение данных
+DB --> Elastic: Результаты
+Elastic --> Django: Результаты поиска
+Django --> Daphne: Ответ
+Daphne --> Nginx: Ответ
+Nginx --> Frontend: Ответ
+Frontend --> User: Отображение результатов
+
+' Процесс подачи заявки
+User -> Frontend: Заполнение заявки
+Frontend -> Nginx: HTTPS запрос
+Nginx -> Daphne: WebSocket/HTTP
+Daphne -> Django: ASGI запрос
+Django -> Auth: Проверка авторизации
+Auth --> Django: Подтверждение
+Django -> Leasing: Создание заявки
+Leasing -> DB: Сохранение заявки
+DB --> Leasing: Подтверждение
+Leasing -> Elastic: Индексация данных
+Elastic --> Leasing: Подтверждение
+Leasing --> Django: Статус создания
+Django --> Daphne: Ответ
+Daphne --> Nginx: Ответ
+Nginx --> Frontend: Ответ
+Frontend --> User: Уведомление об успехе
+
+' Логирование
+Django -> Logstash: Отправка логов
+Logstash -> Elastic: Индексация логов
+Elastic -> Kibana: Визуализация логов
+
+note right of User
+    Полный процесс взаимодействия
+    с системой лизинга автомобилей
+end note
+
+@enduml 

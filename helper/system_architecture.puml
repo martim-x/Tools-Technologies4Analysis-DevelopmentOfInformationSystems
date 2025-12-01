@@ -1,0 +1,68 @@
+@startuml System Architecture
+
+' Настройки
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam componentBackgroundColor #587A9C
+skinparam componentBorderColor #0b2036
+skinparam componentFontColor white
+skinparam arrowColor #465768
+skinparam noteBackgroundColor white
+skinparam noteBorderColor #1f3750
+skinparam noteFontColor #000000
+skinparam databaseBackgroundColor #587A9C
+skinparam databaseBorderColor #0b2036
+skinparam databaseFontColor white
+
+' Компоненты системы
+[Ngrok] as ngrok
+[Nginx] as nginx
+[Daphne] as daphne
+[Django] as django
+[Elasticsearch] as elastic
+[Kibana] as kibana
+[Logstash] as logstash
+
+' База данных
+database "PostgreSQL" as postgres
+
+' Связи
+ngrok --> nginx : HTTPS
+nginx --> daphne : WebSocket/HTTP
+daphne --> django : ASGI
+django --> postgres : ORM
+django --> elastic : Search
+elastic --> kibana : Data
+logstash --> elastic : Logs
+postgres --> elastic : "Индексация\nданных"
+
+' Группировка компонентов
+package "Frontend" #DDDDDD {
+    [React] as react
+    react --> nginx : HTTP/WS
+}
+
+package "Backend" #DDDDDD {
+    [Nginx] as nginx2
+    [Daphne] as daphne2
+    [Django] as django2
+}
+
+package "ELK Stack" #DDDDDD {
+    [Elasticsearch] as elastic2
+    [Kibana] as kibana2
+    [Logstash] as logstash2
+}
+
+' Заметки
+note right of ngrok : Туннелирование и SSL
+note right of nginx : Прокси-сервер и балансировщик
+note right of daphne : ASGI сервер для WebSocket
+note right of elastic : Поисковый движок и хранилище логов
+note right of kibana : Визуализация и анализ данных
+note right of logstash : Сбор и обработка логов
+note right of postgres : Основное хранилище данных
+
+@enduml

@@ -1,0 +1,84 @@
+@startuml Database Schema
+left to right direction
+' Настройки для лучшей читаемости
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor #FFFFFF
+    ArrowColor #465768
+    BorderColor #0b2036
+    FontSize 14
+    FontStyle bold
+    HeaderBackgroundColor #587A9C
+    HeaderFontColor #FFFFFF
+}
+skinparam packageStyle rectangle
+skinparam note {
+    BackgroundColor #ffffff
+    BorderColor #1f3750
+    FontColor #000000
+}
+
+' Модель Car
+class Car {
+    id: BigInteger (PK)
+    images : ManyToManyField (CarImage)
+    car_name: Text
+    full_name: Text
+    brand_name: Text
+    usage_type: Text
+    history: Text
+    description: Text
+    shortdescription: Text
+    advantages: Text
+    fuel_capacity_or_battery_capacity: Float
+    max_range: Float
+    passenger_capacity: Integer
+    transmission_type: Text
+    original_price_usd: Float
+    drive_type: Text
+    leasing_rate: Float
+}
+
+' Модель ExtendedUser
+class ExtendedUser {
+    id: BigInteger (PK)
+    favorite_cars: ManyToManyField (Car)
+    password: Char
+    last_login: DateTime
+    is_superuser: Boolean
+    username: Char
+    first_name: Char
+    last_name: Char
+    email: Char
+    is_staff: Boolean
+    is_active: Boolean
+    date_joined: DateTime
+    is_banned: Boolean
+    groups: ManyToManyField 
+    user_permissions: ManyToManyField
+}
+
+' Модель CarImage
+class CarImage {
+    id: BigInteger (PK)
+    car: ForeignKey (Car)
+    image: ImageField
+}
+
+' Связи с пояснениями
+ExtendedUser " " -- " " Car
+note right of ExtendedUser
+    favorite_cars Many-to-Many связь
+    Пользователи могут иметь
+    несколько избранных машин
+end note
+
+Car " " -- " " CarImage
+note right of Car
+    images One-to-Many связь
+    Каждый автомобиль может иметь
+    несколько изображений
+end note
+
+@enduml

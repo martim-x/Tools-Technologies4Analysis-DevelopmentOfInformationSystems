@@ -1,0 +1,79 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 15
+skinparam linetype ortho
+skinparam arrowColor black
+skinparam arrowThickness 1
+
+left to right direction
+
+actor "Гость" as Guest
+actor "Пользователь" as User
+actor "Администратор" as Admin
+actor "Менеджер" as Manager
+
+actor "Google" as Google
+actor "Facebook" as Facebook
+actor "Github" as Github
+
+package "Аутентификация" {
+    usecase "Создавать учетку" as UC1
+    usecase "Входить в систему" as UC2
+    usecase "Сбрасывать пароль" as UC3
+
+    package "Социально входить" {
+        usecase "Авторизоваться через Google" as UC4
+        usecase "Авторизоваться через Facebook" as UC5
+        usecase "Авторизоваться через Github" as UC6
+    }
+}
+
+package "Каталог" {
+    usecase "Искать товары" as UC8
+    usecase "Применять фильтры" as UC9
+    usecase "Открывать характеристики" as UC10
+    usecase "Открывать изображения" as UC11
+}
+
+package "Профиль" {
+    usecase "Редактировать данные" as UC13
+    usecase "Обновлять пароль" as UC14
+    usecase "Настраивать уведомления" as UC15
+}
+
+package "Лизинг" {
+    usecase "Отправлять заявку" as UC20
+    usecase "Просматривать историю" as UC21
+    usecase "Оплачивать платежи" as UC22
+    usecase "Получать уведомления" as UC23
+    usecase "Рассчитывать платежи" as UC12
+}
+
+Guest --> UC1
+Guest --> UC2
+Guest --> UC3
+Guest --> UC4
+Guest --> UC5
+Guest --> UC6
+
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+User --> UC12
+User --> UC13
+User --> UC14
+User --> UC15
+User --> UC20
+User --> UC21
+User --> UC22
+User --> UC23
+
+Google --> UC4
+Facebook --> UC5
+Github --> UC6
+
+@enduml

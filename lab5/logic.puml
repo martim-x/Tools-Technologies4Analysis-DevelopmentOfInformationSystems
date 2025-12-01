@@ -1,11 +1,9 @@
 @startuml Logical_Schema_Car_Leasing_Full
-skinparam roundcorner 5
-skinparam monochrome false
+skinparam monochrome true
 skinparam shadowing false
-skinparam arrowColor #003366
-skinparam classBackgroundColor #F0F0F0
-skinparam classBorderColor #003366
-skinparam classArrowColor #003366
+skinparam roundcorner 0
+skinparam linetype ortho
+skinparam arrowThickness 1
 
 hide circle
 hide empty members
@@ -67,27 +65,14 @@ class car_leasing_app_carimage {
   # car_id: FK
 }
 
-class car_leasing_app_chat {
-  + id: PK
-  --
-  name
-  created_at
-  category
-}
-
 class car_leasing_app_extendeduser {
   + id: PK
   --
-  password
-  last_login
-  is_superuser
   username
+  email
   first_name
   last_name
-  email
-  is_staff
   is_active
-  date_jointed
   is_banned
 }
 
@@ -96,9 +81,6 @@ class car_leasing_app_message {
   --
   content
   created_at
-  is_read_by_receiver
-  is_pinned
-  is_deleted
   # chat_id: FK
   # sender_id: FK
   # reply_to_id: FK
@@ -112,251 +94,22 @@ class car_leasing_app_leasingform {
   down_payment
   monthly_payment
   # car_id: FK
-  # chat_id: FK
   # consumer_id: FK
   # manager_id: FK
   # holder_id: FK
 }
 
-class car_leasing_app_leasingformrejection {
-  + id: PK
-  --
-  created_at
-  # leasing_form_id: FK
-  # manager_id: FK
-}
+' === RELATIONSHIPS ===
+car_leasing_app_brand ||--o{ car_leasing_app_car
+car_leasing_app_usagetype ||--o{ car_leasing_app_car
+car_leasing_app_passengercapacity ||--o{ car_leasing_app_car
+car_leasing_app_transmissiontype ||--o{ car_leasing_app_car
+car_leasing_app_drivetype ||--o{ car_leasing_app_car
 
-' === M2M TABLES ===
-class car_leasing_app_extendeduser_chats {
-  + id: PK
-  --
-  # extendeduser_id: FK
-  # chat_id: FK
-}
+car_leasing_app_car ||--o{ car_leasing_app_carimage
+car_leasing_app_car ||--o{ car_leasing_app_leasingform
 
-class car_leasing_app_extendeduser_favorite_cars {
-  + id: PK
-  --
-  # extendeduser_id: FK
-  # car_id: FK
-}
-
-class car_leasing_app_extendeduser_groups {
-  + id: PK
-  --
-  # extendeduser_id: FK
-  # group_id: FK
-}
-
-class car_leasing_app_extendeduser_user_permissions {
-  + id: PK
-  --
-  # extendeduser_id: FK
-  # permission_id: FK
-}
-
-' === DJANGO AUTH TABLES ===
-class auth_group {
-  + id: PK
-  --
-  name
-}
-
-class auth_permission {
-  + id: PK
-  --
-  name
-  # content_type_id: FK
-  codename
-}
-
-class auth_group_permissions {
-  + id: PK
-  --
-  # group_id: FK
-  # permission_id: FK
-}
-
-' === DJANGO ACCOUNT TABLES ===
-class account_emailaddress {
-  + id: PK
-  --
-  email
-  verified
-  primary
-  # user_id: FK
-}
-
-class account_emailconfirmation {
-  + id: PK
-  --
-  created
-  sent
-  key
-  # email_address_id: FK
-}
-
-' === DJANGO SYSTEM TABLES ===
-class django_admin_log {
-  + id: PK
-  --
-  action_time
-  object_id
-  object_repr
-  action_flag
-  change_message
-  # content_type_id: FK
-  # user_id: FK
-}
-
-class django_content_type {
-  + id: PK
-  --
-  app_label
-  model
-}
-
-class django_migrations {
-  + id: PK
-  --
-  app
-  name
-  applied
-}
-
-class django_session {
-  + session_key: PK
-  --
-  session_data
-  expire_date
-}
-
-class django_site {
-  + id: PK
-  --
-  domain
-  name
-}
-
-' === SOCIAL AUTH TABLES ===
-class socialaccount_socialaccount {
-  + id: PK
-  --
-  provider
-  uid
-  last_login
-  date_jointed
-  extra_data
-  # user_id: FK
-}
-
-class socialaccount_socialapp {
-  + id: PK
-  --
-  provider
-  name
-  client_id
-  secret
-  key
-  provider_id
-  settings
-}
-
-class socialaccount_socialapp_sites {
-  + id: PK
-  --
-  # socialapp_id: FK
-  # site_id: FK
-}
-
-class socialaccount_socialtoken {
-  + id: PK
-  --
-  token
-  token_secret
-  expires_at
-  # account_id: FK
-  # app_id: FK
-}
-
-' === CORE APPLICATION RELATIONSHIPS ===
-car_leasing_app_brand ||--o{ car_leasing_app_car : "id → brand_name_id"
-car_leasing_app_usagetype ||--o{ car_leasing_app_car : "id → usage_type_id"
-car_leasing_app_passengercapacity ||--o{ car_leasing_app_car : "id → passenger_capacity_id"
-car_leasing_app_transmissiontype ||--o{ car_leasing_app_car : "id → transmission_type_id"
-car_leasing_app_drivetype ||--o{ car_leasing_app_car : "id → drive_type_id"
-
-car_leasing_app_car ||--o{ car_leasing_app_carimage : "id → car_id"
-car_leasing_app_car ||--o{ car_leasing_app_leasingform : "id → car_id"
-
-car_leasing_app_extendeduser ||--o{ car_leasing_app_leasingform : "id → consumer_id"
-car_leasing_app_extendeduser ||--o{ car_leasing_app_leasingform : "id → manager_id"
-car_leasing_app_extendeduser ||--o{ car_leasing_app_leasingform : "id → holder_id"
-car_leasing_app_extendeduser ||--o{ car_leasing_app_message : "id → sender_id"
-car_leasing_app_extendeduser ||--o{ car_leasing_app_leasingformrejection : "id → manager_id"
-
-car_leasing_app_chat ||--o{ car_leasing_app_message : "id → chat_id"
-car_leasing_app_chat ||--o{ car_leasing_app_leasingform : "id → chat_id"
-
-car_leasing_app_leasingform ||--o{ car_leasing_app_leasingformrejection : "id → leasing_form_id"
-
-car_leasing_app_message ||--o{ car_leasing_app_message : "id → reply_to_id"
-
-' === M2M RELATIONSHIPS ===
-car_leasing_app_extendeduser }o--|| car_leasing_app_extendeduser_chats
-car_leasing_app_chat }o--|| car_leasing_app_extendeduser_chats
-
-car_leasing_app_extendeduser }o--|| car_leasing_app_extendeduser_favorite_cars
-car_leasing_app_car }o--|| car_leasing_app_extendeduser_favorite_cars
-
-car_leasing_app_extendeduser }o--|| car_leasing_app_extendeduser_groups
-auth_group }o--|| car_leasing_app_extendeduser_groups
-
-car_leasing_app_extendeduser }o--|| car_leasing_app_extendeduser_user_permissions
-auth_permission }o--|| car_leasing_app_extendeduser_user_permissions
-
-' === DJANGO AUTH RELATIONSHIPS ===
-auth_group }o--|| auth_group_permissions
-auth_permission }o--|| auth_group_permissions
-
-django_content_type ||--o{ auth_permission : "id → content_type_id"
-
-' === DJANGO ACCOUNT RELATIONSHIPS ===
-car_leasing_app_extendeduser ||--o{ account_emailaddress : "id → user_id"
-account_emailaddress ||--o{ account_emailconfirmation : "id → email_address_id"
-
-' === DJANGO SYSTEM RELATIONSHIPS ===
-django_content_type ||--o{ django_admin_log : "id → content_type_id"
-car_leasing_app_extendeduser ||--o{ django_admin_log : "id → user_id"
-
-django_site }o--|| socialaccount_socialapp_sites
-socialaccount_socialapp }o--|| socialaccount_socialapp_sites
-
-' === SOCIAL AUTH RELATIONSHIPS ===
-car_leasing_app_extendeduser ||--o{ socialaccount_socialaccount : "id → user_id"
-socialaccount_socialaccount ||--o{ socialaccount_socialtoken : "id → account_id"
-socialaccount_socialapp ||--o{ socialaccount_socialtoken : "id → app_id"
-
-note right of car_leasing_app_car
-  <b>Основная бизнес-сущность</b>
-  Содержит полную информацию
-  об автомобилях для лизинга
-  Связи: 5 FK + M2M
-end note
-
-note right of car_leasing_app_extendeduser
-  <b>Пользователи системы</b>
-  Расширенная модель пользователя
-  Наследует AbstractUser
-  Связи: 8 прямых + 4 M2M
-end note
-
-legend bottom
-  | Обозначения | |
-  | **+** | Публичное поле / Первичный ключ |
-  | **#** | Внешний ключ (Protected) |
-  | --o{ | Один ко многим |
-  | }o--o{ | Многие ко многим |
-end legend
+car_leasing_app_extendeduser ||--o{ car_leasing_app_message
+car_leasing_app_extendeduser ||--o{ car_leasing_app_leasingform
 
 @enduml

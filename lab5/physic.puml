@@ -1,20 +1,43 @@
-@startuml Physical_Schema_Car_Leasing_Full
-skinparam roundcorner 5
-skinparam monochrome false
+@startuml Physical_Schema_Car_Leasing_Clean
+skinparam monochrome true
 skinparam shadowing false
-skinparam arrowColor #660033
-skinparam classBackgroundColor #F0F8FF
-skinparam classBorderColor #660033
-skinparam classArrowColor #660033
+skinparam roundcorner 0
+skinparam linetype ortho
+skinparam arrowThickness 1
 
 hide circle
 hide empty members
 
-' === CORE APPLICATION TABLES ===
+' === PHYSICAL TABLES (CLEAN VERSION) ===
+
 class car_leasing_app_brand {
   + id: BIGSERIAL <<PK>>
   --
   brand_name: TEXT
+}
+
+class car_leasing_app_usagetype {
+  + id: BIGSERIAL <<PK>>
+  --
+  usage_type: TEXT
+}
+
+class car_leasing_app_passengercapacity {
+  + id: BIGSERIAL <<PK>>
+  --
+  passenger_capacity: INTEGER
+}
+
+class car_leasing_app_transmissiontype {
+  + id: BIGSERIAL <<PK>>
+  --
+  transmission_type: TEXT
+}
+
+class car_leasing_app_drivetype {
+  + id: BIGSERIAL <<PK>>
+  --
+  drive_type: TEXT
 }
 
 class car_leasing_app_car {
@@ -29,34 +52,42 @@ class car_leasing_app_car {
   leasing_rate: DOUBLE PRECISION
   max_range: DOUBLE PRECISION
   original_price_usd: DOUBLE PRECISION
-  # brand_name_id: INTEGER <<FK>>
-  # drive_type_id: INTEGER <<FK>>
-  # passenger_capacity_id: INTEGER <<FK>>
-  # transmission_type_id: INTEGER <<FK>>
-  # usage_type_id: INTEGER <<FK>>
   --
-  <<index>> idx_car_brand
-  <<index>> idx_car_price
-  <<index>> idx_car_leasing_rate
+  brand_name_id: INTEGER <<FK>>
+  drive_type_id: INTEGER <<FK>>
+  passenger_capacity_id: INTEGER <<FK>>
+  transmission_type_id: INTEGER <<FK>>
+  usage_type_id: INTEGER <<FK>>
+}
+
+class car_leasing_app_carimage {
+  + id: BIGSERIAL <<PK>>
+  --
+  image: TEXT
+  --
+  car_id: INTEGER <<FK>>
 }
 
 class car_leasing_app_extendeduser {
   + id: BIGSERIAL <<PK>>
   --
-  password: VARCHAR(128)
-  last_login: TIMESTAMP
-  is_superuser: BOOLEAN
   username: VARCHAR(150)
+  email: VARCHAR(254)
   first_name: VARCHAR(150)
   last_name: VARCHAR(150)
-  email: VARCHAR(254) <<UNIQUE>>
-  is_staff: BOOLEAN
   is_active: BOOLEAN
-  date_jointed: TIMESTAMP
   is_banned: BOOLEAN
+}
+
+class car_leasing_app_message {
+  + id: BIGSERIAL <<PK>>
   --
-  <<index>> idx_user_email
-  <<index>> idx_user_active
+  content: TEXT
+  created_at: TIMESTAMP
+  --
+  chat_id: INTEGER <<FK>>
+  sender_id: INTEGER <<FK>>
+  reply_to_id: INTEGER <<FK>>
 }
 
 class car_leasing_app_leasingform {
@@ -66,153 +97,24 @@ class car_leasing_app_leasingform {
   period: INTEGER
   down_payment: INTEGER
   monthly_payment: DOUBLE PRECISION
-  # car_id: INTEGER <<FK>>
-  # chat_id: INTEGER <<FK>>
-  # consumer_id: INTEGER <<FK>>
-  # manager_id: INTEGER <<FK>>
-  # holder_id: INTEGER <<FK>>
   --
-  <<index>> idx_leasing_car
-  <<index>> idx_leasing_consumer
-  <<index>> idx_leasing_created
+  car_id: INTEGER <<FK>>
+  consumer_id: INTEGER <<FK>>
+  manager_id: INTEGER <<FK>>
+  holder_id: INTEGER <<FK>>
 }
 
-class car_leasing_app_message {
-  + id: BIGSERIAL <<PK>>
-  --
-  content: TEXT
-  created_at: TIMESTAMP
-  is_read_by_receiver: BOOLEAN
-  is_pinned: BOOLEAN
-  is_deleted: BOOLEAN
-  # chat_id: INTEGER <<FK>>
-  # sender_id: INTEGER <<FK>>
-  # reply_to_id: INTEGER <<FK>>
-  --
-  <<index>> idx_message_chat
-  <<index>> idx_message_sender
-  <<index>> idx_message_created
-}
+' === RELATIONSHIPS ===
+car_leasing_app_brand ||--o{ car_leasing_app_car
+car_leasing_app_usagetype ||--o{ car_leasing_app_car
+car_leasing_app_passengercapacity ||--o{ car_leasing_app_car
+car_leasing_app_transmissiontype ||--o{ car_leasing_app_car
+car_leasing_app_drivetype ||--o{ car_leasing_app_car
 
-' === M2M TABLES ===
-class car_leasing_app_extendeduser_favorite_cars {
-  + id: BIGSERIAL <<PK>>
-  --
-  # extendeduser_id: INTEGER <<FK>>
-  # car_id: INTEGER <<FK>>
-  --
-  <<unique>> uk_user_favorite_car
-}
+car_leasing_app_car ||--o{ car_leasing_app_carimage
+car_leasing_app_car ||--o{ car_leasing_app_leasingform
 
-class car_leasing_app_extendeduser_chats {
-  + id: BIGSERIAL <<PK>>
-  --
-  # extendeduser_id: INTEGER <<FK>>
-  # chat_id: INTEGER <<FK>>
-  --
-  <<unique>> uk_user_chat
-}
-
-' === DJANGO AUTH TABLES ===
-class auth_group {
-  + id: BIGSERIAL <<PK>>
-  --
-  name: VARCHAR(150) <<UNIQUE>>
-}
-
-class auth_permission {
-  + id: BIGSERIAL <<PK>>
-  --
-  name: VARCHAR(255)
-  # content_type_id: INTEGER <<FK>>
-  codename: VARCHAR(100)
-  --
-  <<unique>> uk_permission_content_type_codename
-}
-
-' === DJANGO ACCOUNT TABLES ===
-class account_emailaddress {
-  + id: BIGSERIAL <<PK>>
-  --
-  email: VARCHAR(254)
-  verified: BOOLEAN
-  primary: BOOLEAN
-  # user_id: INTEGER <<FK>>
-  --
-  <<unique>> uk_email
-}
-
-' === DJANGO SYSTEM TABLES ===
-class django_admin_log {
-  + id: BIGSERIAL <<PK>>
-  --
-  action_time: TIMESTAMP
-  object_id: TEXT
-  object_repr: VARCHAR(200)
-  action_flag: SMALLINT
-  change_message: TEXT
-  # content_type_id: INTEGER <<FK>>
-  # user_id: INTEGER <<FK>>
-  --
-  <<index>> idx_admin_log_content_type
-  <<index>> idx_admin_log_user
-}
-
-class django_session {
-  + session_key: VARCHAR(40) <<PK>>
-  --
-  session_data: TEXT
-  expire_date: TIMESTAMP
-  --
-  <<index>> idx_session_expire_date
-}
-
-' === SOCIAL AUTH TABLES ===
-class socialaccount_socialaccount {
-  + id: BIGSERIAL <<PK>>
-  --
-  provider: VARCHAR(200)
-  uid: VARCHAR(191)
-  last_login: TIMESTAMP
-  date_jointed: TIMESTAMP
-  extra_data: TEXT
-  # user_id: INTEGER <<FK>>
-  --
-  <<unique>> uk_socialaccount_provider_uid
-}
-
-' === KEY RELATIONSHIPS ===
-car_leasing_app_brand ||--o{ car_leasing_app_car : "ON DELETE SET NULL"
-car_leasing_app_car ||--o{ car_leasing_app_leasingform : "ON DELETE SET NULL"
-car_leasing_app_extendeduser ||--o{ car_leasing_app_leasingform : "ON DELETE SET NULL"
-car_leasing_app_extendeduser ||--o{ django_admin_log : "ON DELETE CASCADE"
-car_leasing_app_extendeduser ||--o{ socialaccount_socialaccount : "ON DELETE CASCADE"
-
-car_leasing_app_extendeduser }o--|| car_leasing_app_extendeduser_favorite_cars
-car_leasing_app_car }o--|| car_leasing_app_extendeduser_favorite_cars
-
-note right of car_leasing_app_car
-  <b>СУБД:</b> PostgreSQL 17.4
-  <b>Размер записи:</b> ~2KB
-  <b>Индексы:</b> 3 B-tree
-  <b>Ожидаемый размер:</b> 10,000 записей
-end note
-
-note right of car_leasing_app_extendeduser
-  <b>СУБД:</b> PostgreSQL 17.4
-  <b>Размер записи:</b> ~1KB
-  <b>Индексы:</b> 2 B-tree
-  <b>Ожидаемый размер:</b> 50,000 записей
-end note
-
-legend bottom
-  | Обозначения | |
-  | **+** | Публичное поле / Первичный ключ |
-  | **#** | Внешний ключ (Protected) |
-  | <<PK>> | Первичный ключ |
-  | <<FK>> | Внешний ключ |
-  | <<UNIQUE>> | Уникальное ограничение |
-  | <<index>> | Индекс базы данных |
-end legend
+car_leasing_app_extendeduser ||--o{ car_leasing_app_message
+car_leasing_app_extendeduser ||--o{ car_leasing_app_leasingform
 
 @enduml

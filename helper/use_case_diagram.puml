@@ -12,12 +12,8 @@ left to right direction
 
 actor "Гость" as Guest
 actor "Пользователь" as User
-actor "Администратор" as Admin
 actor "Менеджер" as Manager
-
-actor "Google" as Google
-actor "Facebook" as Facebook
-actor "Github" as Github
+actor "Администратор" as Admin
 
 package "Аутентификация" {
     usecase "Создавать учетку" as UC1
@@ -41,15 +37,17 @@ package "Каталог" {
 package "Профиль" {
     usecase "Редактировать данные" as UC13
     usecase "Обновлять пароль" as UC14
-    usecase "Настраивать уведомления" as UC15
 }
 
 package "Лизинг" {
     usecase "Отправлять заявку" as UC20
-    usecase "Просматривать историю" as UC21
-    usecase "Оплачивать платежи" as UC22
-    usecase "Получать уведомления" as UC23
-    usecase "Рассчитывать платежи" as UC12
+    usecase "Принять заявку" as UC21
+    usecase "Связываться с клиентом" as UC22
+}
+
+package "Администрирование" {
+    usecase "Проверять целостность данных" as UC30
+    usecase "Решать внутренние проблемы БД" as UC31
 }
 
 Guest --> UC1
@@ -63,17 +61,20 @@ User --> UC8
 User --> UC9
 User --> UC10
 User --> UC11
-User --> UC12
 User --> UC13
 User --> UC14
-User --> UC15
 User --> UC20
-User --> UC21
-User --> UC22
-User --> UC23
+User --> Guest
 
-Google --> UC4
-Facebook --> UC5
-Github --> UC6
+Manager --> UC21
+Manager --> Guest
+Manager --> UC22
+Manager --> User
+
+Admin --> UC30
+Admin --> UC31
+Admin --> Guest
+Admin --> Manager
+Admin --> User
 
 @enduml

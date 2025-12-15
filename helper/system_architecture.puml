@@ -1,26 +1,19 @@
 @startuml System Architecture
-
-' Настройки
-skinparam backgroundColor white
-skinparam componentStyle rectangle
-skinparam defaultFontName Arial
-skinparam defaultFontSize 14
-skinparam componentBackgroundColor #587A9C
-skinparam componentBorderColor #0b2036
-skinparam componentFontColor white
-skinparam arrowColor #465768
-skinparam noteBackgroundColor white
-skinparam noteBorderColor #1f3750
-skinparam noteFontColor #000000
-skinparam databaseBackgroundColor #587A9C
-skinparam databaseBorderColor #0b2036
-skinparam databaseFontColor white
+skinparam monochrome true
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 15
+skinparam linetype ortho
+skinparam arrowColor black
+skinparam arrowThickness 1
 
 ' Компоненты системы
 [Ngrok] as ngrok
 [Nginx] as nginx
 [Daphne] as daphne
 [Django] as django
+[Redis] as redis
 [Elasticsearch] as elastic
 [Kibana] as kibana
 [Logstash] as logstash
@@ -33,24 +26,26 @@ ngrok --> nginx : HTTPS
 nginx --> daphne : WebSocket/HTTP
 daphne --> django : ASGI
 django --> postgres : ORM
+django --> redis : Cache
 django --> elastic : Search
 elastic --> kibana : Data
 logstash --> elastic : Logs
 postgres --> elastic : "Индексация\nданных"
 
 ' Группировка компонентов
-package "Frontend" #DDDDDD {
+package "Frontend" {
     [React] as react
     react --> nginx : HTTP/WS
 }
 
-package "Backend" #DDDDDD {
+package "Backend" {
     [Nginx] as nginx2
     [Daphne] as daphne2
     [Django] as django2
+    [Redis] as redis2
 }
 
-package "ELK Stack" #DDDDDD {
+package "ELK Stack" {
     [Elasticsearch] as elastic2
     [Kibana] as kibana2
     [Logstash] as logstash2
@@ -60,6 +55,7 @@ package "ELK Stack" #DDDDDD {
 note right of ngrok : Туннелирование и SSL
 note right of nginx : Прокси-сервер и балансировщик
 note right of daphne : ASGI сервер для WebSocket
+note right of redis : Кэширование и очередь задач
 note right of elastic : Поисковый движок и хранилище логов
 note right of kibana : Визуализация и анализ данных
 note right of logstash : Сбор и обработка логов
